@@ -5,5 +5,5 @@ steps:
   
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['functions', 'deploy', 'cloud_build_result_notification', 
-         '--runtime', 'python312,
+         '--runtime', 'python312',
          '--trigger-topic','cloud-builds'] 
