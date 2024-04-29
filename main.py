@@ -50,6 +50,7 @@ def cloud_build_result_notification(event, context):
          context (google.cloud.functions.Context): Metadata for the event.
     """
     pubsub_message = base64.b64decode(event['data']).decode('utf-8')
+    logger.debug(f"RECEIVED CLOUD BUILD NOTIFICATION: {pubsub_message}")
     if 'status' in pubsub_message:
         if pubsub_message['status'] == 'SUCCESS':
             send_TWILIO_message("Repository build successful".format(pubsub_message['repoName']))
