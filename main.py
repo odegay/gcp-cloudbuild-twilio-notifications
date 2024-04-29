@@ -1,4 +1,5 @@
 import base64
+import json
 import logging
 import requests
 from google.cloud import secretmanager
@@ -50,11 +51,12 @@ def cloud_build_result_notification(event, context):
          context (google.cloud.functions.Context): Metadata for the event.
     """
     pubsub_message = base64.b64decode(event['data']).decode('utf-8')
+    pubsub_message = json.loads(pubsub_message)
     logger.debug(f"RECEIVED CLOUD BUILD NOTIFICATION: {pubsub_message}")
     if 'status' in pubsub_message:
         if pubsub_message['status'] == 'SUCCESS':
-            send_TWILIO_message("Repository build successful".format(pubsub_message['repoName']))
+            send_TWILIO_message("Repository build successful".format(pubsub_message['REPO_NAME']))
         else:
-            send_TWILIO_message("Repository build failed".format(pubsub_message['repoName']))
+            send_TWILIO_message("Repository build failed".format(pubsub_message['REPO_NAME']))
     logger.debug(f"Decoded Pub/Sub message: {pubsub_message}")
 
