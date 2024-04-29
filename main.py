@@ -54,10 +54,18 @@ def cloud_build_result_notification(event, context):
     pubsub_message = json.loads(pubsub_message)
     logger.debug(f"RECEIVED CLOUD BUILD NOTIFICATION: {pubsub_message}")
     if 'status' in pubsub_message:
-        repo_name = pubsub_message.get('substitutions', {}).get('REPO_NAME', 'Unknown repository')
+        repo_name = pubsub_message.get('substitutions', {}).get('REPO_NAME', 'UNKNOWN REPO NAME')
         if pubsub_message['status'] == 'SUCCESS':
-            send_TWILIO_message(F"Repository build successful for {repo_name}")
+            if 'REPO_NAME' in pubsub_message['substitutions']:
+                send_TWILIO_message(F"Repository build successful for {repo_name}")
+            else:
+                logger.debug(f"Receieved a successful build message but missing REPO_NAME in the message")
+        elif pubsub_message['status'] == 'FAILURE':
+            if 'REPO_NAME' in pubsub_message['substitutions']:
+                send_TWILIO_message(F"Repository build failed for {repo_name}")
+            else:
+                logger.debug(f"Receieved a failed build message but missing REPO_NAME in the message")
         else:
-            send_TWILIO_message("Repository build failed for {repo_name}")
-    logger.debug(f"Decoded Pub/Sub message: {pubsub_message}")
-
+            logger.debug(f"Interim status received: {pubsub_message['status']} for {repo_name}")
+    else:
+        logger.debug(f"Message is missing the status")
